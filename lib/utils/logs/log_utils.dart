@@ -13,9 +13,10 @@ class LogUtils {
 
   // Optional: initialization logic
   void _init() {
-    if (kDebugMode) {
-      debugPrint("✅ LogUtils initialized ONLY ONCE");
-    }
+    // if (kDebugMode) {
+    //   debugPrint("✅ LogUtils initialized ONLY ONCE");
+      print("✅ LogUtils initialized ONLY ONCE");
+    // }
   }
 
   // Static methods

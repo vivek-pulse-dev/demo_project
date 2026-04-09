@@ -10,11 +10,11 @@ abstract class UserDao {
   @Query('SELECT * FROM users ORDER BY user_id DESC')
   Future<List<User>> findAllUsers();
 
-  @Query('SELECT * FROM users WHERE email = :email LIMIT 1')
+  @Query('SELECT * FROM users WHERE LOWER(email) = LOWER(:email) LIMIT 1')
   Future<User?> findUserByEmail(String email);
 
   @Query(
-    'SELECT * FROM users WHERE email = :email AND user_id != :excludeId LIMIT 1',
+    'SELECT * FROM users WHERE LOWER(email) = LOWER(:email) AND user_id != :excludeId LIMIT 1',
   )
   Future<User?> findUserByEmailExcludeId(String email, int excludeId);
 

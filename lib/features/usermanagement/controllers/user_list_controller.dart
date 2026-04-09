@@ -5,17 +5,19 @@ import 'package:get/get.dart';
 import 'package:demo_project/features/usermanagement/models/user.dart';
 import 'package:demo_project/utils/services/db_service.dart';
 import 'package:demo_project/utils/logs/log_utils.dart';
+import 'package:demo_project/utils/services/snackbar_service.dart';
 
 class UserListController extends GetxController {
   RxList<User> users = <User>[].obs;
-  RxBool isLoading = false.obs;
+  Rx<User?> selectedUser = Rx<User?>(null); //moSelectedUser
+  RxBool isLoading = false.obs;  //mbFlgLoading
   RxBool isFetchingMore = false.obs;
   RxBool hasMoreData = true.obs;
 
-  int _currentPage = 1;
-  final int _limit = AppConstants.defaultPageSize;
+  int _currentPage = 1;  // _miCurrentPage
+  final int _limit = AppConstants.defaultPageSize; // _miLimit
 
-  TextEditingController searchController = TextEditingController();
+  TextEditingController searchController = TextEditingController(); // _miSearchController
   Timer? _debounce;
   RxString currentSearchQuery = ''.obs;
 
@@ -49,7 +51,7 @@ class UserListController extends GetxController {
     }
   }
 
-  void onSearchChanged(String query) {
+  void onSearchChanged(String query) {   // fsQuery - fiPage
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       if (currentSearchQuery.value != query) {
@@ -66,6 +68,8 @@ class UserListController extends GetxController {
       hasMoreData.value = true;
       users.clear();
       isLoading.value = true;
+
+
       LogUtils.info('Refreshing user list');
     } else {
       // Guard against concurrent fetches or end of data
@@ -94,7 +98,7 @@ class UserListController extends GetxController {
       _currentPage++;
     } catch (e, stack) {
       LogUtils.error('Failed to fetch users', e, stack);
-      Get.snackbar('Error', 'Failed to fetch users: $e');
+      SnackbarService.showError('Failed to fetch users: $e');
     } finally {
       isLoading.value = false;
       isFetchingMore.value = false;
@@ -106,10 +110,10 @@ class UserListController extends GetxController {
       await DbService.deleteUser(id);
       users.removeWhere((u) => u.id == id);
       LogUtils.info('User deleted: $id');
-      Get.snackbar('Success', 'User deleted successfully');
+      SnackbarService.showSuccess('User deleted successfully');
     } catch (e, stack) {
       LogUtils.error('Failed to delete user', e, stack);
-      Get.snackbar('Error', 'Failed to delete user: $e');
+      SnackbarService.showError('Failed to delete user: $e');
     }
   }
 

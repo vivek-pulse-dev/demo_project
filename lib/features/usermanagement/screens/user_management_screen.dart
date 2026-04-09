@@ -60,23 +60,32 @@ class UserManagementScreen extends GetView<UserListController> {
               controller.users.length + (controller.hasMoreData.value ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == controller.users.length) {
-              return Obx(() => controller.isFetchingMore.value
-                  ? const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Center(
-                        child: SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+              return Obx(
+                () => controller.isFetchingMore.value
+                    ? const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Center(
+                          child: SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         ),
-                      ),
-                    )
-                  : const SizedBox.shrink());
+                      )
+                    : const SizedBox.shrink(),
+              );
             }
 
             final user = controller.users[index];
             return UserItemWidget(
               user: user,
+              onTap: () {
+                controller.selectedUser.value = user;
+                NavigationService.navigateTo(
+                  AppRoutes.userDetails,
+                  arguments: user,
+                );
+              },
               onEdit: () async {
                 await NavigationService.navigateTo(
                   AppRoutes.userForm,

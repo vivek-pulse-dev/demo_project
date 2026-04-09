@@ -97,6 +97,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `users` (`user_id` INTEGER PRIMARY KEY AUTOINCREMENT, `first_name` TEXT NOT NULL, `last_name` TEXT NOT NULL, `birth_date` TEXT NOT NULL, `email` TEXT NOT NULL, `password` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE UNIQUE INDEX `index_users_email` ON `users` (`email`)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -163,7 +165,8 @@ class _$UserDao extends UserDao {
 
   @override
   Future<User?> findUserByEmail(String email) async {
-    return _queryAdapter.query('SELECT * FROM users WHERE email = ?1 LIMIT 1',
+    return _queryAdapter.query(
+        'SELECT * FROM users WHERE LOWER(email) = LOWER(?1) LIMIT 1',
         mapper: (Map<String, Object?> row) => User(
             id: row['user_id'] as int?,
             firstName: row['first_name'] as String,
@@ -180,14 +183,8 @@ class _$UserDao extends UserDao {
     int excludeId,
   ) async {
     return _queryAdapter.query(
-        'SELECT * FROM users WHERE email = ?1 AND user_id != ?2 LIMIT 1',
-        mapper: (Map<String, Object?> row) => User(
-            id: row['user_id'] as int?,
-            firstName: row['first_name'] as String,
-            lastName: row['last_name'] as String,
-            birthDate: row['birth_date'] as String,
-            email: row['email'] as String,
-            password: row['password'] as String),
+        'SELECT * FROM users WHERE LOWER(email) = LOWER(?1) AND user_id != ?2 LIMIT 1',
+        mapper: (Map<String, Object?> row) => User(id: row['user_id'] as int?, firstName: row['first_name'] as String, lastName: row['last_name'] as String, birthDate: row['birth_date'] as String, email: row['email'] as String, password: row['password'] as String),
         arguments: [email, excludeId]);
   }
 

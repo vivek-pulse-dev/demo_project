@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:demo_project/features/usermanagement/models/user.dart';
 import 'package:demo_project/utils/services/db_service.dart';
 import 'package:demo_project/utils/logs/log_utils.dart';
+import 'package:demo_project/utils/extensions/date_extensions.dart';
 
 /// --- TESTING MODE CONFIGURATION ---
 /// Set [isTestMode] to true to enable auto-generation of mock data.
@@ -98,11 +99,12 @@ Future<void> setupTestData() async {
           '${firstName.toLowerCase()}.${lastName.toLowerCase()}.$i@example.com';
 
       // Random birth date between 1970 and 2005
-      final int year = 1970 + random.nextInt(36);
-      final int month = 1 + random.nextInt(12);
-      final int day = 1 + random.nextInt(28);
-      final String birthDate =
-          '$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
+      final DateTime birthDateTime = DateTime(
+        1970 + random.nextInt(36),
+        1 + random.nextInt(12),
+        1 + random.nextInt(28),
+      );
+      final String birthDate = birthDateTime.toDisplayDate();
 
       final user = User(
         firstName: firstName,

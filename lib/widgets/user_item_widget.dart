@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:demo_project/features/usermanagement/models/user.dart';
 import 'package:demo_project/widgets/btns/custom_icon_button.dart';
 import 'package:demo_project/core/constants/app_colors.dart';
+import 'package:demo_project/utils/extensions/date_extensions.dart';
 
 class UserItemWidget extends StatelessWidget {
   final User user;
+  final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const UserItemWidget({
     super.key,
     required this.user,
+    required this.onTap,
     required this.onEdit,
     required this.onDelete,
   });
@@ -22,6 +25,7 @@ class UserItemWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
+        onTap: onTap,
         contentPadding: const EdgeInsets.only(left: 15, top: 4, bottom: 4),
 
         title: Text(
@@ -35,7 +39,7 @@ class UserItemWidget extends StatelessWidget {
             Text(user.email, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 2),
             Text(
-              user.birthDate,
+              user.birthDate.toDisplayDate(),
               style: const TextStyle(fontSize: 12, color: AppColors.grey600),
             ),
           ],

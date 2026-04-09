@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:demo_project/utils/extensions/date_extensions.dart';
 import 'package:demo_project/features/usermanagement/models/user.dart';
 import 'package:demo_project/utils/services/db_service.dart';
 import 'package:demo_project/features/usermanagement/controllers/user_list_controller.dart';
 import 'package:demo_project/utils/services/navigation_service.dart';
 import 'package:demo_project/utils/logs/log_utils.dart';
 import 'package:demo_project/core/constants/app_strings.dart';
-import 'package:demo_project/core/constants/app_colors.dart';
 import 'package:demo_project/core/exceptions/app_exceptions.dart';
+import 'package:demo_project/utils/services/snackbar_service.dart';
+
 class UserFormController extends GetxController {
   final formKey = GlobalKey<FormState>();
 
@@ -54,7 +55,7 @@ class UserFormController extends GetxController {
     lastNameController.text = user.lastName;
     emailController.text = user.email;
     passwordController.text = user.password;
-    dobController.text = user.birthDate;
+    dobController.text = user.birthDate.toDisplayDate();
   }
 
   void togglePasswordVisibility() {
@@ -62,18 +63,20 @@ class UserFormController extends GetxController {
   }
 
   Future<void> pickDate(BuildContext context) async {
-    DateTime? picked = await showDatePicker(
+    // Use already-selected date if present, otherwise today
+    final initialDate = dobController.text.toDateTime() ?? DateTime.now();
+
+    final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(
-        const Duration(days: 365 * 18),
-      ), // 18 years old by default
+      initialDate: initialDate,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
 
     if (picked != null) {
-      dobController.text = DateFormat('yyyy-MM-dd').format(picked);
+      dobController.text = picked.toDisplayDate();
       LogUtils.info('Date picked: ${dobController.text}');
+      formKey.currentState?.validate();
     }
   }
 
@@ -83,7 +86,7 @@ class UserFormController extends GetxController {
       LogUtils.info('Saving user...');
 
       try {
-        final email = emailController.text.trim();
+        final email = emailController.text.trim().toLowerCase();
         final isExists = await DbService.isEmailExists(
           email,
           excludeId: isEditMode.value ? currentUser.value?.id : null,
@@ -117,6 +120,7 @@ class UserFormController extends GetxController {
           final listController = Get.find<UserListController>();
           if (isEditMode.value) {
             listController.updateUserInList(user);
+            listController.selectedUser.value = user;
           } else {
             final userWithId = User(
               id: newId,
@@ -130,25 +134,22 @@ class UserFormController extends GetxController {
           }
         }
 
-        NavigationService.goBack(result: true);
+        NavigationService.goBack(result: user);
 
-        Get.snackbar(
-          'Success',
+        SnackbarService.showSuccess(
           isEditMode.value
               ? AppStrings.userUpdatedSuccess
               : AppStrings.userCreatedSuccess,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.successColor.withOpacity(0.8),
-          colorText: AppColors.white,
-          duration: const Duration(seconds: 2),
         );
       } on DuplicateEntryException catch (e) {
-        Get.snackbar('Validation', e.message);
+        SnackbarService.showWarning(e.message, title: 'Validation');
       } on DatabaseException catch (e) {
-        Get.snackbar('Database Error', e.message);
+        SnackbarService.showError(e.message, title: 'Database Error');
       } catch (e, stack) {
         LogUtils.error('Failed to save user', e, stack);
-        Get.snackbar('Error', 'An unexpected error occurred: ${e.toString()}');
+        SnackbarService.showError(
+          'An unexpected error occurred: ${e.toString()}',
+        );
       } finally {
         isLoading.value = false;
       }

@@ -3,10 +3,12 @@
 ```
 lib/
 ├── core/
-│   ├── constants/app_strings.dart
-│   ├── theme/app_theme.dart
-│   ├── helper/db_helper.dart
-│   └── utils/extensions.dart
+│   ├── bindings/           # GetX Bindings (AppBinding)
+│   ├── constants/          # App constants (Strings, Colors, etc.)
+│   ├── exceptions/         # Custom App Exceptions
+│   ├── helper/             # Database helpers (Floor/SQLite)
+│   │   └── floor_db/
+│   └── theme/              # App Theme configuration
 │
 ├── features/
 │   ├── splash/
@@ -22,9 +24,12 @@ lib/
 │       └── models/user.dart
 │
 ├── utils/
-│   ├── services/db_service.dart
-│   ├── validations/validators.dart
-│   └── input_formatters/input_formatters.dart
+│   ├── extensions/         # Dart/Flutter extensions
+│   ├── logs/               # Logging utility
+│   ├── services/           # DB, Navigation, Snackbar services
+│   ├── testing/            # Test mode configurations
+│   └── validations/        # Form validators
+│   └── input_formatters/   # Input formatters
 │
 ├── widgets/
 │   ├── custom_button.dart

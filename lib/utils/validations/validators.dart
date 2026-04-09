@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:demo_project/core/constants/app_strings.dart';
+import 'package:demo_project/utils/extensions/date_extensions.dart';
 
 class Validators {
   Validators._internal();
@@ -37,13 +38,11 @@ class Validators {
   static String? validateDob(String? value) {
     if (value == null || value.trim().isEmpty) return AppStrings.requiredField;
     
-    try {
-      DateTime dob = DateTime.parse(value);
-      if (dob.isAfter(DateTime.now())) {
-        return AppStrings.futureDateError;
-      }
-    } catch (_) {
-      return AppStrings.requiredField;
+    final DateTime? dob = value.toDateTime();
+    if (dob == null) return AppStrings.requiredField;
+
+    if (dob.isAfter(DateTime.now())) {
+      return AppStrings.futureDateError;
     }
     return null;
   }

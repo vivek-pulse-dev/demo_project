@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:demo_project/utils/services/db_service.dart';
 import 'package:demo_project/features/splash/splash_controller.dart';
 import 'package:demo_project/features/usermanagement/controllers/user_list_controller.dart';
 import 'package:demo_project/features/usermanagement/controllers/user_form_controller.dart';
